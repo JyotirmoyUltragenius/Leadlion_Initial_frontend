@@ -7,38 +7,43 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { users } from "@/lib/database";
 import { useToast } from "@/components/ui/use-toast";
 
-const Login = () => {
+const Signup = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    const user = users.find(
-      (u) => u.username === username && u.password === password
-    );
-
-    if (user) {
-      localStorage.setItem("isAuthenticated", "true");
-      navigate("/upload");
-    } else {
+    
+    // Check if username already exists
+    if (users.some(u => u.username === username)) {
       toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: "Signup Failed",
+        description: "Username already exists",
         variant: "destructive",
       });
+      return;
     }
+
+    // Add new user
+    users.push({ username, password });
+    localStorage.setItem("isAuthenticated", "true");
+    toast({
+      title: "Success",
+      description: "Account created successfully",
+    });
+    navigate("/upload");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Login</CardTitle>
+          <CardTitle className="text-2xl text-center">Create Account</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="text"
@@ -56,12 +61,12 @@ const Login = () => {
               />
             </div>
             <Button type="submit" className="w-full">
-              Login
+              Sign Up
             </Button>
             <div className="text-center text-sm">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-600 hover:underline">
-                Sign Up
+              Already have an account?{" "}
+              <Link to="/login" className="text-blue-600 hover:underline">
+                Login
               </Link>
             </div>
           </form>
@@ -71,4 +76,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
